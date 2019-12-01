@@ -1,0 +1,180 @@
+--Insert
+
+	/**
+	 * 新增加用户
+	 * 
+	 * @param sysUser
+	 * @return
+	 */
+	int insert(SysUser sysUser);
+	
+	<insert id="insert">
+		insert into sys_user(
+		id, user_name, user_password,
+		user_email, user_info, head_img, create_time)
+		values(
+		#{id},#{userName},#{userPassword},#{userEmail},#{userInfo},#{headImg,jdbcType=BLOB},#{createTime,jdbcType=TIMESTAMP})
+	</insert>
+	
+	
+先看＜工nsert ＞元素，这个标签包含如下属性。
+• id：命名空间中的唯一标识符，可用来代表这条语句。
+parameterType ：即将传入的语句参数的完全限定类名或别名。这个属性是可选的，
+因为MyBatis 可以推断出传入语句的具体参数，因此不建议配置该属性。
+flushCache ：默认值为true ，任何时候只要语句被调用，都会清空一级缓存和二级
+缓存。
+timeout ：设置在抛出异常之前，驱动程序等待数据库返回请求结果的秒数。
+statemetType ：对于STATEMENT 、PREPARED 、CALLABLE, MyBatis 会分别使用
+对应的Statement 、PreparedStatement 、CallableStatement ，默认值为
+PREPARED 。
+useGeneratedKeys ：默认值为false 。如果设置为true, MyBatis 会使用JDBC
+的getGeneratedKeys 方法来取出由数据库内部生成的主键。
+• keyProperty: MyBatis 通过getGeneratedKeys 获取主键值后将要赋值的属性名。
+如果希望得到多个数据库自动生成的列，属性值也可以是以逗号分隔的属性名称列表。
+keyColumn ：仅对INSERT 和UPDATE 有用。通过生成的键值设置表中的列名， 这个
+设置仅在某些数据库（如PostgreSQL ）中是必须的， 当主键列不是表中的第一列时需
+要设置。如果希望得到多个生成的列，也可以是逗号分隔的属性名称列表。
+database Id ：如果配置了databaseidProvider (4.6 节有详细配置方法） ， MyBatis
+会加载所有的不带databaseid 的或匹配当前databaseid 的语句。如果同时存在带
+databaseid 和不带databaseid 的语句，后者会被忽略。
+
+	@Test
+	public void testInsert() {
+		SqlSession sqlSession=getSqlSession();
+		
+		try {
+			UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+			SysUser sysUser =new SysUser();
+			sysUser.setUserName("张三");
+			sysUser.setUserPassword("123456");
+			sysUser.setUserEmail("test@mybatis.tk");
+			sysUser.setUserInfo("test info");
+			sysUser.setHeadImg(new byte[] {1,2,3});
+			sysUser.setCreateTime(new Date());
+			
+			int result = userMapper.insert(sysUser);
+			
+			Assert.assertEquals(1,result);
+			Assert.assertNotNull(sysUser.getId()); //
+		} finally {
+			sqlSession.rollback();
+			sqlSession.close();
+		}
+	}
+
+对象无id值；
+	
+--使用JDBC 方式返回主键自增的值
+useGeneratedKeys：返回数据库生成的主键
+keyProperty：对应的属性
+keyColumn：对应的列
+
+
+	@Test
+	public void testInsert2() {
+		SqlSession sqlSession=getSqlSession();
+		
+		try {
+			UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+			SysUser sysUser =new SysUser();
+			sysUser.setUserName("张三");
+			sysUser.setUserPassword("123456");
+			sysUser.setUserEmail("test@mybatis.tk");
+			sysUser.setUserInfo("test info");
+			sysUser.setHeadImg(new byte[] {1,2,3});
+			sysUser.setCreateTime(new Date());
+			
+			int result = userMapper.insert2(sysUser);
+			
+			Assert.assertEquals(1,result);
+			Assert.assertNotNull(sysUser.getId());
+		} finally {
+			sqlSession.rollback();
+			sqlSession.close();
+		}
+	}
+	
+---使用selectKey 返回主键的值
+
+增加
+		<selectKey keyColumn="id" resultType="long" keyProperty="id"
+			order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+o rder 属性的设置和使用的数据库有关。
+在MySQL 数据库中， order 属性设置的值是AFTER ，因为当前记录的主键值在insert 语句
+执行成功后才能获取到。而在Oracle 数据库中， order 的值要设置为BEFORE ，这是因为Oracl e
+中需要先从序列获取值，然后将值作为主键插入到数据库中。
+
+Oracle：
+<insert id="insert3">
+		insert
+		into sys_user(
+		id, user_name, user_password,
+		user_email,
+		user_info,
+		head_img, create_time)
+		values(
+		#{id},#{userName},#{userPassword},#{userEmail},#{userInfo},#{headImg,jdbcType=BLOB},#{createTime,jdbcType=TIMESTAMP})
+		<selectKey keyColumn="id" resultType="long" keyProperty="id"
+			order="BEFORE">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+MySQL:
+<insert id="insert3">
+		insert
+		into sys_user(
+		user_name, user_password,
+		user_email,
+		user_info,
+		head_img, create_time)
+		values(
+		#{userName},#{userPassword},#{userEmail},#{userInfo},#{headImg,jdbcType=BLOB},#{createTime,jdbcType=TIMESTAMP})
+		<selectKey keyColumn="id" resultType="long" keyProperty="id"
+			order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	
+	@Test
+	public void testInsert3() {
+		SqlSession sqlSession=getSqlSession();
+		
+		try {
+			UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+			SysUser sysUser =new SysUser();
+			sysUser.setUserName("张三");
+			sysUser.setUserPassword("123456");
+			sysUser.setUserEmail("test@mybatis.tk");
+			sysUser.setUserInfo("test info");
+			sysUser.setHeadImg(new byte[] {1,2,3});
+			sysUser.setCreateTime(new Date());
+			
+			int result = userMapper.insert3(sysUser);
+			
+			Assert.assertEquals(1,result);
+			Assert.assertNotNull(sysUser.getId());
+		} finally {
+			sqlSession.rollback();
+			sqlSession.close();
+		}
+	}
+	
+	
+在Oracle 示例中， SELECT SEQ_ ID.nextval from d u al
+是一个获取序列的SQL 语句。MySQL 中的SQL 语句SELECT LAST_ INSERT_ ID （）用于获取
+数据库中最后插入的数据的ID 值。以下是其他一些支持主键自增的数据库配置s el ectKey
+中回写主键的SQL 。
+DB2 使用VALUES IDENTITY VAL LOCAL （） 。
+• MYSQL 使用SELECT LAST_INSERT_ID （） 。
+• SQLSERVER 使用SELECT SCOPE IDENTITY （）。
+• CLOUDSCAPE 使用VALUES IDENTITY VAL LOCAL （） 。
+• DERBY 使用VALUES IDENTITY VAL LOCAL （） 。
+• HSQLDB 使用CALL IDENTITY （） 。
+SYBASE 使用SELE CT @@IDENTITY 。
+• DB2 MF 使用SELECT IDENTITY VAL LOCAL(} FROM SYSIBM. SYSDUMMYl 。
+• 时FORMIX 使用select dbinfo ('sq lea. sqlerrdl ’ ) from systables where
+tabid=l 。

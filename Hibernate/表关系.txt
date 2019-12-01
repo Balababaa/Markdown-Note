@@ -1,0 +1,116 @@
+Inverse 外键维护：
+true：放弃维护外键，交给另一方
+false：维护外键，默认值。
+
+
+效率上一般选择false。
+
+true：
+Hibernate: 
+    insert 
+    into
+        t_teacher
+        (name) 
+    values
+        (?)
+Hibernate: 
+    insert 
+    into
+        t_student
+        (name, tid) 
+    values
+        (?, ?)
+
+		
+		
+false：
+Hibernate: 
+    insert 
+    into
+        t_teacher
+        (name) 
+    values
+        (?)
+Hibernate: 
+    insert 
+    into
+        t_student
+        (name, tid) 
+    values
+        (?, ?)
+Hibernate: 
+    update
+        t_student 
+    set
+        tid=? 
+    where
+        id=?
+
+cascade 级联操作：
+	save-update：A保存，同时保存B
+		保存一的一方，多的一方也自动保存。
+Hibernate: 
+    insert 
+    into
+        t_teacher
+        (name) 
+    values
+        (?)
+Hibernate: 
+    insert 
+    into
+        t_student
+        (name, tid) 
+    values
+        (?, ?)
+
+		
+	delete：删除A，同时删除B，AB都不存在
+	Hibernate: 
+    select
+        teacher0_.id as id1_0_,
+        teacher0_.name as name1_0_ 
+    from
+        t_teacher teacher0_ 
+    where
+        teacher0_.id=?
+Hibernate: 
+    select
+        students0_.tid as tid1_1_,
+        students0_.id as id1_,
+        students0_.id as id0_0_,
+        students0_.name as name0_0_,
+        students0_.tid as tid0_0_ 
+    from
+        t_student students0_ 
+    where
+        students0_.tid=?
+Hibernate: 
+    delete 
+    from
+        t_student 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        t_student 
+    where
+        id=?
+Hibernate: 
+    delete 
+    from
+        t_teacher 
+    where
+        id=?
+		
+
+	delete-orphan：孤儿删除，解除关系，同时将B删除，A存在的。
+	孤儿
+	remove方法 inverse为true remove后不会为null
+	1
+	
+	如果需要配置多项，使用逗号分隔。<set cascade="save-update,delete">
+
+	all : save-update 和 delete 整合
+	all-delete-orphan : 三个整合

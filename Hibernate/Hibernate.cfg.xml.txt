@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+	
+<!--表关系配置-->
+<hibernate-configuration>
+	<session-factory>
+	
+		<!--数据库基础配置-->
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="connection.url">jdbc:mysql://localhost:3306/jdbc</property>
+		<property name="connection.username">root</property>
+		<property name="connection.password"></property>
+
+		<!--是否打印Sql语句-->
+		<property name="show_sql">true</property>
+		
+		<!--格式化Sql语句-->
+		<property name="format_sql">true</property>
+		
+		<!--
+			表关系：
+			validate|update|create|create-drop
+			validate: Hibernate加载时校验表信息，不符合则报错，不会创建表
+			update: 修改类属性对应的列是会重新创建一个类，并保留原来的列
+			create: 每次加载hibernate时都会删除上一次的生成的表
+			create-drop: 每次加载hibernate时都会删除上一次的生成的表，SessionFactory关闭时删除表
+		
+		-->		
+		<property name="hbm2ddl.auto">update</property>
+
+		<!--
+			Hibernate底层依然使用SQL语句来执行数据库操作，虽然所有关系型数据库都支持使用标准SQL语句
+			配置方言，标识不同的数据库之间的语法差异(不同数据库都对标准SQL进行了一些扩展)
+		-->
+		<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+		<!--导入实体映射配置，程序每次启动都会自动检索-->
+		<mapping resource="com/van/User.hbm.xml.tld"></mapping>
+
+	</session-factory>
+</hibernate-configuration>

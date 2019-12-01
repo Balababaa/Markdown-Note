@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping >
+	<!--
+		name: 映射对象的类名
+		table: 映射对象所对应的表明
+	-->
+    <class name="com.van.User" table="user">
+	
+	<!--
+	配置数据库主键属性(Hibernate中必须存在主键)
+		name: 类中主键的属性
+	-->
+        <id name="id">
+		<!--
+		主键生成策略
+			generator:主键的自增策略
+			assigned|increment|hilo|seqhilo|sequence|identity|native|uuid|guid|foreign|select
+			assigned: 由用户生成主键，多用于自然主键
+			increment: 由Hibernate从数据库中取出主键的最大值(每个session只取1次),以该值为基础+1
+			hilo: hilo算法生成主键
+			seqhilo: 适用于支持sequence的数据库的hilo方法
+			sequence: 采用数据库提供的sequence机制生成主键,需要数据库支持sequence
+			identity: 有数据库生成主键，主键必须设置为自增长
+			native: identity sequence hilo 三者之一
+			uuid: Universally Unique Identifier 是指在一台机器上生成的数字,它保证对在同一时空中的所有机器都是唯一的(主键类型需要为字符串)
+			guid: Globally Unique Identifier全球唯一标识符 比uuid更长
+			foreign: 使用另外一个相关联的对象的主键作为该对象主键,主要用于一对一关系中select
+			select: 使用触发器生成主键,主要用于早期的数据库主键生成机制,能用到的地方非常少
+		-->
+            <generator class="native"></generator>
+        </id>
+
+		<!--
+		属性设置
+			name: 类中的属性名称
+			column: 数据库中对应的列
+		-->
+        <property name="username" column="username"></property>
+        <property name="password" column="password"></property>
+		
+		<!--一对多关系中设置的集合-->
+    </class>
+    
+</hibernate-mapping>

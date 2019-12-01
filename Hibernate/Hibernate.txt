@@ -1,0 +1,104 @@
+public static void main(String[] args)
+    {
+        Session session = HibernateHelp.openSession();
+
+        Transaction transaction = session.beginTransaction();
+
+		//save方法将对象放入hibernate一级缓存中
+        User user = new User();
+        user.setUsername("ddf");
+        user.setPassword("1234");
+        session.save(user);
+        User u1 = session.get(User.class,1);
+        System.out.println(u1==user);
+
+        //条件查询
+        String hql = "from User where username=? and password=?";
+        Query query = session.createQuery(hql);
+        query.setParameter(0,"Van");
+        query.setParameter(1,"1234");
+
+
+        排序查询
+        String hql = "from User order by id desc ";
+        Query query = session.createQuery(hql);
+
+
+        模糊查询
+        //String hql = "from User where username like ? ";
+        //org.hibernate.query.Query query = session.createQuery(hql);
+        //query.setParameter(1,"ro");
+
+
+        分页查询
+        //String hql = "from User";
+        //org.hibernate.query.Query query = session.createQuery(hql);
+        //query.setFirstResult(6);
+        //query.setMaxResults(3);
+
+        投影查询
+        //String hql = "select username from User ";
+        //org.hibernate.query.Query query = session.createQuery(hql);
+        //List list = query.list();
+        //System.out.println(list);
+
+        查询个数
+        //String hql="select count(*) from User";
+        //org.hibernate.query.Query query = session.createQuery(hql);
+        //Object o = query.uniqueResult();
+
+        Criteria查询
+        //Criteria criteria = session.createCriteria(User.class);
+        //criteria.add(Restrictions.eq("id",5));
+    }
+	
+	
+	
+	    public static void revise(int id, String username, String password)
+    {
+        Session session = HibernateHelp.openSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        User user = session.get(User.class, id);
+
+        user.setUsername(username);
+        user.setPassword(password);
+
+        session.update(user);
+
+        transaction.commit();
+        session.close();
+    }
+
+    //查
+    public static void find(int id)
+    {
+        Session session = HibernateHelp.openSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        User user = session.get(User.class, id);
+        System.out.println(user);
+
+        transaction.commit();
+        session.close();
+    }
+
+
+    //查
+    public static void find()
+    {
+        Session session = HibernateHelp.openSession();
+
+        Transaction transaction = session.beginTransaction();
+
+        String hql = "from User";
+        Query query = session.createQuery(hql);
+
+
+        System.out.println(query.list());
+
+        transaction.commit();
+        session.close();
+    }
